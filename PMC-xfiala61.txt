@@ -8,10 +8,30 @@ Login: xfiala61
 1) Kterou ze smyček (viz zadání) je vhodnější paralelizovat a co způsobuje 
    neefektivitu paralelizaci té druhé?
 
+   Vhodnější je paralelizovat nejvíce vnější smyčku, tzn. smyčku ve funkci marchCubes 
+   procházející přes celý 3D prostor.
+   Neefektivita paralelizace druhé smyčky je způsobena XXXXXX doplnit.
+
 2) Jaké plánování (rozdělení práce mezi vlákna) jste zvolili a proč? 
    Jaký vliv má velikost "chunk" při dynamickém plánování (8, 16, 32, 64)?
+   
+   Zvolil jsem statické dělení (schedule(static)), protože nepředpokládám, že by
+   v rychlosti, jakou jednotlivá vlákna zpracují svoji část, byl výrazný rozdíl. 
+   Stejně tak jsem nezvolil žádný chunk size, neboť stačí výchozí rozdělení podle 
+   počtu vláken.
+
+   Velikost chunku určuje, kolik iterací každé vlákno provede. Čím nižší hodnota,
+   tím častěji bude nutné řešit přidělování práce vláknům a tím pádem bude vyšší režie.
+   Se zmíněnými hodnotami to znamená, že každé vlákno provede 8,16,32 či 64 iterací, 
+   než si zažádá o další. V tomto konkrétním případě jsem rozdíl v rychlosti při 
+   použití zmíněných velikostí chunku nezaznamenal.
 
 3) Jakým způsobem zajišťujete ukládání trojúhelníků z několika vláken současně?
+
+   Za pomoci pragmy omp critical, která zajistí, že ukládání trojúhelníků bude
+   prováděno v rámci kritické sekce, tzn. ukládat je může vždy pouze 1 vlákno a 
+   ostatní musí čekat. Není nutné zajišťovat pořadí, v jakém jsou ukládány,
+   takže lze použít pouze tuto pragmu.
 
 
 Úloha 2: Paralelní průchod stromem
