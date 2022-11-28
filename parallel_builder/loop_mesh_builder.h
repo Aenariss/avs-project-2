@@ -5,7 +5,7 @@
  *
  * @brief   Parallel Marching Cubes implementation using OpenMP loops
  *
- * @date    DATE
+ * @date    26.11.2022
  **/
 
 #ifndef LOOP_MESH_BUILDER_H

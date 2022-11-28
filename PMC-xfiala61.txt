@@ -10,7 +10,9 @@ Login: xfiala61
 
    Vhodnější je paralelizovat nejvíce vnější smyčku, tzn. smyčku ve funkci marchCubes 
    procházející přes celý 3D prostor.
-   Neefektivita paralelizace druhé smyčky je způsobena XXXXXX doplnit.
+   Neefektivita paralelizace druhé smyčky je způsobena tím, že je paralelizována
+   pouze malá část kódu, kde režie paralelizace je větší, než její efektivita,
+   a velká část kódu stále beží sekvenčně.
 
 2) Jaké plánování (rozdělení práce mezi vlákna) jste zvolili a proč? 
    Jaký vliv má velikost "chunk" při dynamickém plánování (8, 16, 32, 64)?
@@ -39,10 +41,19 @@ Login: xfiala61
 
 1) Stručně popište použití OpenMP tasků ve vašem řešení.
 
+   Tasky jsou přidávány na jediném místě, a to v rekurzivní funkci tree(), která
+   volá samu sebe na 8 validních podstromů. Každé toto volání je součástí nového tasku.
+
 2) Jaký vliv má na vaše řešení tzv. "cut-off"? Je vhodné vytvářet nový 
    task pro každou krychli na nejnižší úrovni?
 
+   Kontrola cut-off hodnoty určuje, na jaké úrovni se nacházejí listy stromu.
+   Podle času, jak dlouho výpočet trvá, není vytváření nových tasků pro každou krychli 
+   vhodné.
+
 3) Jakým způsobem zajišťujete ukládání trojúhelníků z několika vláken současně?
+
+   Za pomoci pragmy omp critical, obdobně jako v předchozím příkladu.
 
 Úloha 3: Grafy škálování všech řešení
 ===============================================================================
@@ -55,7 +66,7 @@ Login: xfiala61
 3) Je (nebo není) stromový algoritmus efektivnější z pohledu slabého škálování 
    vzhledem ke vstupu?
 
-4) Jaký je rozdíle mezi silným a slabým škálováním?
+4) Jaký je rozdíl mezi silným a slabým škálováním?
 
 Úloha 4: Analýza využití jader pomocí VTune
 ================================================================================
