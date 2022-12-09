@@ -21,4 +21,8 @@ CC=icc CXX=icpc cmake ..
 make
 
 ml matplotlib/3.5.2-foss-2022a
+chmod +x ../scripts/generate_data_and_plots.sh
+chmod +x ../scripts/compare.sh
+chmod +x ../scripts/measure_grid_scaling.sh
+chmod +x ../scripts/measure_input_scaling.sh
 bash ../scripts/generate_data_and_plots.sh

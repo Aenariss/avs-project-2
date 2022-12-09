@@ -5,7 +5,7 @@
  *
  * @brief   Parallel Marching Cubes implementation using OpenMP tasks + octree early elimination
  *
- * @date    28.11.2022
+ * @date    9.12.2022
  **/
 
 #ifndef TREE_MESH_BUILDER_H
@@ -25,7 +25,7 @@ protected:
     unsigned int tree(const Vec3_t<float> pos, double edgeSize, const ParametricScalarField &field);
 
     
-    bool condition(const double edgeSize, const ParametricScalarField &field, const Vec3_t<float> center);
+    bool condition(const double edgeSize, const ParametricScalarField &field, const Vec3_t<float> pos, double half);
     Vec3_t<float> getCenter(const Vec3_t<float> pos, double half);
     Vec3_t<float> posInSpace(const Vec3_t<float> pos, double half, size_t it);
     std::vector<Triangle_t> mTriangles; ///< Temporary array of triangles
