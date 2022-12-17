@@ -5,7 +5,7 @@
  *
  * @brief   Parallel Marching Cubes implementation using OpenMP tasks + octree early elimination
  *
- * @date    9.12.2022
+ * @date    17.12.2022
  **/
 
 #include <iostream>
@@ -22,14 +22,12 @@ TreeMeshBuilder::TreeMeshBuilder(unsigned gridEdgeSize)
 
 }
 
-bool TreeMeshBuilder::condition(const double edgeSize, const ParametricScalarField &field, const Vec3_t<float> pos, double half) {
-    Vec3_t<float> center = getCenter(pos, half);
-    auto value = evaluateFieldAt(center, field);
+bool TreeMeshBuilder::condition(const double edgeSize, const ParametricScalarField &field, const Vec3_t<float> &pos, const double half){
     // if its less or equal, its not empty
-    return (value <= (mIsoLevel + ((sqrt(3) / 2) * edgeSize)));
+    return (evaluateFieldAt(getCenter(pos, half), field) <= (mIsoLevel + ((sqrt(3) / 2) * edgeSize)));
 }
 
-Vec3_t<float> TreeMeshBuilder::getCenter(Vec3_t<float> pos, double half) {
+Vec3_t<float> TreeMeshBuilder::getCenter(const Vec3_t<float> &pos, const double half) {
     // center of the edge is in the half, aka start + half, but has to be in original continuous space 
     // i can get that by multiplying the position by the resolution
     Vec3_t<float> center( (pos.x + half) * mGridResolution,
@@ -38,7 +36,7 @@ Vec3_t<float> TreeMeshBuilder::getCenter(Vec3_t<float> pos, double half) {
     return center;
 }
 
-Vec3_t<float> TreeMeshBuilder::posInSpace(Vec3_t<float> pos, double half, size_t it) {
+Vec3_t<float> TreeMeshBuilder::posInSpace(const Vec3_t<float> &pos, const double half, const size_t it) {
     // I need to calculate a new position from which I continue
     // because I divide the block into 8 parts, I can use the sc_vertexNormPos which 
     // has defined 8 vertexes for 8 corners of the block
@@ -48,7 +46,7 @@ Vec3_t<float> TreeMeshBuilder::posInSpace(Vec3_t<float> pos, double half, size_t
     return newpos;
 }
 
-unsigned int TreeMeshBuilder::tree(const Vec3_t<float> pos, double edgeSize, const ParametricScalarField &field) {
+unsigned int TreeMeshBuilder::tree(const Vec3_t<float> &pos, const double edgeSize, const ParametricScalarField &field) {
 
     double half = edgeSize / 2;
     unsigned totalTriangles = 0;
@@ -58,7 +56,7 @@ unsigned int TreeMeshBuilder::tree(const Vec3_t<float> pos, double edgeSize, con
         return 0;
     
     // if im already at the bottom, its time to buildCube()
-    // 2 is too much, 1-1.5 seems ok, but 1 is fancier
+    // 2 is too much, under 1 seems ok but unnecessary, 1 is the fanciest
     if (edgeSize <= edgeSizeCutoff)
         totalTriangles += buildCube(pos, field);
     // else I go through 8 parts
@@ -67,10 +65,10 @@ unsigned int TreeMeshBuilder::tree(const Vec3_t<float> pos, double edgeSize, con
                 // get new position from which it recursively launches again
                 Vec3_t<float> newpos = posInSpace(pos, half, i);
                 // add task to queue
-                #pragma omp task default(none) shared(field, totalTriangles, half) firstprivate(newpos)
+                #pragma omp task default(shared) firstprivate(newpos)
                 {
                     // atomic operation
-                    #pragma omp atomic
+                    #pragma omp atomic update
                     // recursively count again, using new position and half the size of the edge (8 parts, each has half the size of original)
                     totalTriangles += tree(newpos, half, field);
                 }
@@ -92,7 +90,7 @@ unsigned TreeMeshBuilder::marchCubes(const ParametricScalarField &field)
     unsigned triangles;
     #pragma omp parallel default(none) shared(triangles, origEdge, field)    // initialize parallel threads
     {
-        #pragma omp single   // only do this once
+        #pragma omp master  // only do this once (in the master thread)
         {
             triangles = tree(sc_vertexNormPos[0], origEdge, field);
         }

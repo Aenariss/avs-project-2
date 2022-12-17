@@ -48,6 +48,8 @@ Login: xfiala61
    task pro každou krychli na nejnižší úrovni?
 
    Kontrola cut-off hodnoty určuje, na jaké úrovni se nacházejí listy stromu.
+   Moje řešení využívá kontroly, že délka hrany je menší nebo rovna 1, tedy v případě,
+   dokud je větší než 1, dochází k rekurzivnímu dělení na podstromy.
    Podle času, jak dlouho výpočet trvá, není vytváření nových tasků pro každou krychli 
    vhodné.
 
@@ -63,17 +65,15 @@ Login: xfiala61
    Stromový algoritmus je málo efektivní při malém vstupu a vysokém počtu výpočetních 
    vláken. 
    Paralelizace původní smyčky je, i na menším vstupu, s přibývajícím počtem vláken
-   efektivnější než stromové řešení (ale stále pomalejší). Přestává být efektivní,
-   když je vláken vzhledem k velikosti vstupu příliš.
+   efektivnější než stromové řešení (ale stále pomalejší).
 
    Obecně je stromový algoritmus rychlejší než paralelizace původního řešení. Dále jsou také
    oba algoritmy se zvětšujícím se vstupem a rostoucím počtem vláken efektivnější.
 
    Oba algoritmy dobře mají přijatelné silné škálování do 16 vláken, potom, s 32 vlákny, 
    jejich efektivita rapidně klesá a je ve většině případů nižší, než kdy je jádro jen 1, 
-   z důvodu vysoké režie paralelizace (testovací vstupy jsou nejspíš přiliš malé, aby se 
-   vlákna efektivně využila). Při příliš malých vstupech se čas výpočtu v případě
-   stromového algoritmu s rostoucím počtem vláken nesnižuje.
+   což může být způsobeno vysokou režií paralelizace. Při příliš malých vstupech se čas 
+   výpočtu v případě stromového algoritmu s rostoucím počtem vláken nesnižuje.
 
 2) V jakém případě (v závislosti na počtu bodů ve vstupním souboru a velikosti 
    mřížky) bude vaše řešení 1. úlohy neefektivní? (pokud takový případ existuje)
@@ -93,8 +93,7 @@ Login: xfiala61
    Silná škálování vychází z Amdahlova zákona a zobrazuje, jak se mění doba výpočtu 
    v závislosti na rostoucím počtu výpočetních vláken (obecně pro vstup velikosti N).
    Ideální křivka silného škálování je klesající přímka, která znamená, že s více jádry
-   jsme schopni problém vyřešit rychleji (tzn. 2x více jader -- 2x rychlejší, bohužel obvykle
-   nereálné).
+   jsme schopni problém vyřešit rychleji.
 
    Slabé škálování vychází z Gustafsonova zákona a zobrazuje, jak se mění doba výpočtu
    v závislosti na velikosti vstupu pro každé vlákno.
@@ -109,15 +108,15 @@ Login: xfiala61
    18 vláken? Na kolik procent byly využity?
    
    ref: 2.8 %
-   loop: 47.7 %
-   tree: 44.3 %
+   loop: 48.4 %
+   tree: 43.5 %
 
 2) Jaké bylo průměrné využití jader pro všechny tři implementace s využitím 
    všech jader? Na kolik procent se podařilo využít obě CPU?
    
    ref: 2.8 %
-   loop: 81.1 %
-   tree: 75.3 %
+   loop: 81.9 %
+   tree: 73.8 %
 
 3) Jaké jsou závěry z těchto měření?
    
